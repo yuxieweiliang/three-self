@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/Stats.js"></script>
+</head>
+<body>
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    stats: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  function initState() {
+    var stats = new Stats();
+    stats.setMode(1); // 0: fps, 1: ms
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild( stats.domElement );
+    spectacle.stats = stats;
+  }
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    spectacle.renderer = new THREE.WebGLRenderer({
+      antialias: true // 开启平滑优化
+    });
+    spectacle.renderer.setSize(w - 20, h - 200);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#fff', 1);
+  }
+
+  // 常见场景
+  function initScene() {
+    spectacle.scene = new THREE.Scene();
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 透视相机
+    var camera = new THREE.PerspectiveCamera(45, (w - 20)/(h-200), 1, 1000);
+
+    // 设置相机的初始位置
+    camera.position.z = 800;
+    camera.position.x = 0;
+    camera.position.y = 0;
+
+    // 快门方向
+    camera.up.x = 0;
+    camera.up.y = .1;
+    camera.up.z = 0;
+
+    // 焦点方向
+    camera.lookAt({
+      x : 0,
+      y : 0,
+      z : 0
+    });
+
+    spectacle.camera = camera;
+  }
+
+  // 添加灯光
+  function initLight() {
+     // 环境光  红色环境光会让黄色物体呈现出橙色。
+    /*var light1 = new THREE.AmbientLight('#fff', .5);
+    light1.position.set(0, 0, 1);
+    spectacle.scene.add(light1);*/
+
+     // 环境光  红色环境光会让黄色物体呈现出橙色。
+    var pointLight = new THREE.PointLight('#fff');
+    var lightHelper = new THREE.PointLightHelper(pointLight, 300);
+    pointLight.position.set(100, 100, 0);
+    spectacle.scene.add(pointLight);
+    spectacle.scene.add(lightHelper);
+
+    // 点光源
+    var light = new THREE.PointLight(0x00FF00);
+    light.position.set(0, 0, 300);
+    spectacle.scene.add(light);
+  }
+
+  // 创建物体
+  function initObject() {
+    // 六面体({上面， 下面， 高度})
+    var geometry = new THREE.PlaneGeometry(500, 800);
+
+    var loader = new THREE.TextureLoader();
+
+    loader.load(
+      "./images/texture.jpg",
+      // onLoad
+      function (texture) {
+
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.x = texture.repeat.y = 5;
+        window.texture = texture;
+        // 创建网格材质
+        var material = new THREE.MeshLambertMaterial({ map: texture });
+
+        // 创建一个网格对象，添加圆柱与材质
+        var mesh1 = new THREE.Mesh(geometry, material);
+
+        mesh1.position.set(100, 0, 0);
+
+        // 将三维模型添加到场景
+        spectacle.scene.add(mesh1);
+
+      },
+      // onProgress
+      function (xhr) {
+
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+      },
+      // onError
+      function (xhr) {
+
+      });
+
+  }
+
+  function render() {
+    spectacle.stats.begin();
+    // spectacle.renderer.clear();
+
+    setTimeout(function () {
+
+      if(window.texture) {
+        window.texture.offset.x += 0.01;
+      }
+    }, 1000);
+
+    console.log(spectacle.scene);
+    console.log(spectacle.camera);
+    // 移动摄像机
+    // spectacle.camera.position.x += 1;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+    spectacle.renderer.shadowMap.enabled = true;
+    spectacle.stats.end();
+    requestAnimationFrame(render);
+  }
+
+  function startThree() {
+    initState();
+    initRenderer ();
+    initScene();
+    initCamera();
+    initObject();
+    initLight();
+
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>

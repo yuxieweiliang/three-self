@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/TrackballControls.js"></script>
+  <script src="./js/VTKLoader73.js"></script>
+  <script src="./js/Detector.js"></script>
+</head>
+<body>
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // antialias: 开启平滑优化
+    spectacle.renderer = new THREE.WebGLRenderer({ antialias: true });
+    spectacle.renderer.setSize(w - 20, h - 200);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#000', 1);
+  }
+
+  // 常见场景
+  function initScene() {
+    spectacle.scene = new THREE.Scene();
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 透视相机
+    var camera = new THREE.PerspectiveCamera(45, (w - 20)/(h-200), 0.01, 1e10);
+
+    // 设置相机的初始位置
+    camera.position.z = 0.2;
+    spectacle.camera = camera;
+  }
+
+  // 添加灯光
+  function initLight() {
+     // 环境光  红色环境光会让黄色物体呈现出橙色。
+    var light = new THREE.DirectionalLight('#fff');
+    light.position.set( 200, 200, 1000 ).normalize();
+    spectacle.scene.add(light);
+  }
+
+  // 创建物体
+  function initObject() {
+    // 六面体({上面， 下面， 高度})
+    // var geometry = new THREE.PlaneGeometry(150, 150);
+
+    // 创建网格材质
+    var material = new THREE.MeshLambertMaterial({
+      side: THREE.DoubleSide,
+      // color: '#f00'
+    });
+
+    var loader = new THREE.VTKLoader();
+
+    console.log(loader);
+    loader.load("http://localhost:12542/lesson_06/modal/bunny.vtk" , function ( geometry ) {
+
+      // 计算法线
+      geometry.computeVertexNormals();
+      console.log(geometry);
+      var mesh = new THREE.Mesh( geometry, material );
+      mesh.position.setY( - 0.09 );
+      spectacle.scene.add( mesh );
+      console.log(mesh);
+
+    } );
+
+
+  }
+
+  function render() {
+    // spectacle.renderer.clear();
+
+    // 移动摄像机
+    // spectacle.camera.position.x += 1;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+
+    requestAnimationFrame(render);
+  }
+
+
+  function startThree() {
+    initScene();
+    initCamera();
+    initLight();
+    initObject();
+    initRenderer ();
+
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>

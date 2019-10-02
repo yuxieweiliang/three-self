@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/Stats.js"></script>
+</head>
+<body style="display: flex; flex-wrap: wrap; background: #fafafa;">
+</body>
+
+<script>
+  var INTERSICTED;
+  var spectacle = {
+    container: document.body,
+    renderer: null,
+    camera: null,
+    object: null,
+    stats: null,
+    raycaster: null,
+    mouse: {
+      x: null,
+      y: null,
+    },
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    },
+    radius: 100,
+    theta: 0
+  };
+  function initInfo() {
+    var info = document.createElement('div');
+    info.style.position = 'absolute';
+    info.style.top = '10px';
+    info.width = '100%';
+    info.innerHTML = 'WebGL 中文网';
+    spectacle.container.appendChild(info);
+
+  }
+
+  function init() {
+    var w = spectacle.screen.width - 50, h = spectacle.screen.height - 50;
+    initInfo();
+    spectacle.camera = new THREE.PerspectiveCamera(70, w/h, 1, 1e10);
+    spectacle.scene = new THREE.Scene();
+    var light = new THREE.DirectionalLight('#ff', 1);
+    light.position.set(1, 1, 1).normalize();
+    spectacle.scene.add(light);
+
+    var geometry = new THREE.BoxGeometry(20, 20, 20);
+
+    for(var i = 0; i < 2000; i ++) {
+      var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff}));
+
+      object.position.x = Math.random() * 800 - 400;
+      object.position.y = Math.random() * 800 - 400;
+      object.position.z = Math.random() * 800 - 400;
+
+      object.rotation.x = Math.random() * 2 * Math.PI;
+      object.rotation.y = Math.random() * 2 * Math.PI;
+      object.rotation.z = Math.random() * 2 * Math.PI;
+
+      object.scale.x = Math.random() + .5;
+      object.scale.y = Math.random() + .5;
+      object.scale.z = Math.random() + .5;
+
+      spectacle.scene.add(object);
+    }
+
+    spectacle.raycaster = new THREE.Raycaster();
+
+    spectacle.renderer = new THREE.WebGLRenderer();
+    spectacle.renderer.setClearColor('#f0f0f0');
+    spectacle.renderer.setPixelRatio(window.devicePixelRatio);
+    spectacle.renderer.setSize(w, h);
+    spectacle.renderer.sortObjects = false;
+    spectacle.container.appendChild(spectacle.renderer.domElement);
+
+    document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+    window.addEventListener('resize', onWindowResize, false);
+  }
+
+  function onWindowResize() {
+    var w = spectacle.screen.width - 50, h = spectacle.screen.height - 50;
+    spectacle.camera.aspect = w / h;
+    spectacle.camera.updateProjectionMatrix();
+    spectacle.renderer.setSize(w, h);
+  }
+
+  function onDocumentMouseMove(e) {
+    var w = spectacle.screen.width - 50, h = spectacle.screen.height - 50;
+    e.preventDefault();
+
+    spectacle.mouse.x = (e.clientX / w) * 2 - 1;
+    spectacle.mouse.y = - (e.clientY / h) * 2 + 1;
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    render();
+  }
+  function render() {
+    var camera = spectacle.camera;
+    spectacle.theta += 0.1;
+    spectacle.camera.position.x = spectacle.radius * Math.sin(THREE.Math.degToRad(spectacle.theta));
+    spectacle.camera.position.y = spectacle.radius * Math.sin(THREE.Math.degToRad(spectacle.theta));
+    spectacle.camera.position.z = spectacle.radius * Math.cos(THREE.Math.degToRad(spectacle.theta));
+    spectacle.camera.lookAt(spectacle.scene.position);
+
+    spectacle.camera.updateMatrixWorld();
+
+    spectacle.raycaster.setFromCamera(spectacle.mouse, spectacle.camera);
+
+    var intersects = spectacle.raycaster.intersectObjects(spectacle.scene.children);
+
+    if(intersects.length > 0) {
+      if(INTERSICTED !== intersects[ 0 ].object) {
+        if(INTERSICTED) {
+          INTERSICTED.material.emissive.setHex(INTERSICTED.surrentHex);
+        }
+
+        INTERSICTED = intersects[ 0 ].object;
+        INTERSICTED.currentHex = INTERSICTED.material.emissive.getHex();
+        INTERSICTED.material.emissive.setHex(0xff0000);
+      }
+    }else {
+      if(INTERSICTED) {
+        INTERSICTED.material.emissive.setHex(INTERSICTED.surrentHex);
+      }
+
+      INTERSICTED = null;
+    }
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+  }
+
+  init();
+  animate();
+
+</script>
+</html>

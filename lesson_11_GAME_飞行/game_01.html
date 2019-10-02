@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/Detector.js"></script>
+</head>
+<body>
+<div id="start"></div>
+<script src="./javascript/game.js"></script>
+<script>
+  const GAME = (function () {
+    function show(id) {
+      document.getElementById(id).style.display = "block";
+    }
+    function hide(id) {
+      document.getElementById(id).style.display = "none";
+    }
+    return {
+      running: false,
+      // 初始化
+      init() {
+        // 显示初始化界面
+        show('start');
+        this.running = true;
+
+        // 初始化游戏引擎（three）
+        if(init()) animate();
+        // 设置关卡
+
+        // 设置键盘操控类
+      },
+      // 第一次开始比赛
+      start() {
+        hide('start');
+
+        this.running = true;
+
+        // 播放音乐
+
+      },
+      // 重新开始比赛
+      restart() {
+
+      },
+      // 玩家赢得比赛
+      win() {
+
+      },
+      // 玩家输掉比赛
+      wrong() {
+
+      }
+    }
+  })();
+
+  function main() {
+    GAME.init();
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    render();
+  }
+
+  window.onload = main();
+</script>
+</body>
+</html>

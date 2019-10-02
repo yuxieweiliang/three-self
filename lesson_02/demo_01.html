@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+</head>
+<body>
+
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    spectacle.renderer = new THREE.WebGLRenderer({
+      antialias: true // 开启平滑优化
+    });
+    spectacle.renderer.setSize(w - 20, h - 200);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#fff');
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 透视相机
+    var camera = new THREE.PerspectiveCamera(45, (w - 20)/(h-200), 1, 10000);
+    // left, right, top, bottom, near, far
+    // var camera = new THREE.OrthographicCamera(0, w, 0, h, 5, 1000);
+
+    // 设置相机的初始位置
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 1000;
+
+    // 快门方向
+    camera.up.x = 0;
+    camera.up.y = 0;
+    camera.up.z = 1;
+
+    // 镜头方向
+    camera.lookAt({
+      x: 0,
+      y: 0,
+      z: 0,
+    });
+
+    spectacle.camera = camera;
+  }
+
+  // 添加灯光
+  function initLight() {
+    var light = new THREE.DirectionalLight('#f00', 1.0, 0);
+    light.position.set(100, 100, 200);
+    spectacle.scene.add(light);
+  }
+
+  // 常见场景
+  function initScene() {
+    var scene = new THREE.Scene();
+
+    // 将三维模型添加到场景
+    scene.add(spectacle.object);
+    spectacle.scene = scene;
+  }
+
+  // 创建物体
+  function initObject() {
+    // 常见一个三维模型
+    var geometry = new THREE.Geometry();
+    // 创建基本材质
+    var material = new THREE.LineBasicMaterial({
+      vertexColors: THREE.VertexColors // 线条的颜色会根据顶点来计算
+    });
+
+    // 定义定点的颜色
+    var color1 = new THREE.Color('#444'), color2 = new THREE.Color('#f00');
+
+    // 创建点的坐标
+    var p1 = new THREE.Vector3(-100, 0, 100);
+    var p2 = new THREE.Vector3(100, 0, -100);
+
+    var p3 = new THREE.Vector3(100, 100, 0);
+    var p4 = new THREE.Vector3(300, 300, 0);
+
+    var p5 = new THREE.Vector3(-200, 100, 200);
+    var p6 = new THREE.Vector3(200, 100, -200);
+
+    // 根据点生成线
+    geometry.vertices.push(p1);
+    geometry.vertices.push(p2);
+    geometry.vertices.push(p3);
+    geometry.vertices.push(p4);
+    geometry.vertices.push(p5);
+    geometry.vertices.push(p6);
+    // 为线添加颜色
+    geometry.colors.push(color1, color2, color1, color2, color1, color2);
+
+    // 创建线 ({ 几何体，线条材质，连接方式 })
+    spectacle.object = new THREE.Line(geometry, material, THREE.LinePieces);
+  }
+
+  function render() {
+    spectacle.renderer.clear();
+
+    // 旋转三维模型
+    spectacle.object.rotation.x += 0.01;
+    spectacle.object.rotation.y += 0.01;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+
+    requestAnimationFrame(render);
+  }
+
+
+  function startThree() {
+    initRenderer ();
+    initCamera();
+    initObject();
+    initScene();
+    initLight();
+
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>

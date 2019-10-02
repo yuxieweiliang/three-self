@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/TrackballControls.js"></script>
+  <script src="./js/Detector.js"></script>
+</head>
+<body>
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    mesh: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+  function init() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 创建渲染器 antialias: 开启平滑优化
+    spectacle.renderer = new THREE.WebGLRenderer({ antialias: true });
+    spectacle.renderer.setSize(w - 20, h - 200);
+
+    // 场景
+    spectacle.scene = new THREE.Scene();
+
+    // 透视相机
+    // 设置相机的初始位置
+    var camera = new THREE.PerspectiveCamera(27, (w - 20)/(h-200), 1, 36000);
+    camera.position.z = 5000;
+    spectacle.scene.add(camera);
+    spectacle.camera = camera;
+
+    // 环境光
+    spectacle.scene.add(new THREE.AmbientLight('#444'));
+    // 平行光
+    var light1 = new THREE.DirectionalLight('#fff', .5);
+    light1.position.set( 1, 1, 1 );
+    spectacle.scene.add(light1);
+    // 平行光
+    var light2 = new THREE.DirectionalLight('#fff', 1.5);
+    light2.position.set( 0, -1, 0 );
+    spectacle.scene.add(light2);
+
+
+    /**
+     * 创建物体
+     * @type {THREE.PlaneGeometry}
+     */
+    var particles = 100000;
+    var geometry = new THREE.BufferGeometry();
+    var positions = new Float32Array(particles * 3 * 3);
+    var colors = new Float32Array(particles * 3 * 3);
+    var color = new THREE.Color();
+
+    var n = 800, n2 = n/2;
+
+
+    for (var i = 0; i < positions.length; i+=9) {
+      var x = Math.random() * n - n2;
+      var y = Math.random() * n - n2;
+      var z = Math.random() * n - n2;
+
+      positions[ i ] = x;
+      positions[ i + 1 ] = y;
+      positions[ i + 2 ] = z;
+
+      var vx = (x / n) + 0.5;
+      var vy = (y / n) + 0.5;
+      var vz = (z / n) + 0.5;
+
+      color.setRGB(vx, vy, vz);
+
+      colors[ i ] = color.r;
+      colors[ i + 1 ] = color.g;
+      colors[ i + 2 ] = color.b;
+
+    }
+
+    geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    geometry.computeBoundingSphere();
+
+    // 创建网格材质
+    var material = new THREE.PointsMaterial({ size: 15,  vertexColors: THREE.VertexColors });
+
+    spectacle.mesh = new THREE.Points(geometry, material);
+
+    spectacle.scene.add(spectacle.mesh);
+
+    // 移动摄像机 spectacle.scene.fog.color
+    spectacle.renderer.setClearColor('#fff', .5);
+    spectacle.renderer.setPixelRatio(window.devicePixelRatio);
+    spectacle.renderer.setSize(w - 50, h - 20);
+    spectacle.renderer.gammaInput = true;
+    spectacle.renderer.gammaOutput = true;
+
+    document.body.appendChild(spectacle.renderer.domElement);
+
+    window.addEventListener('resize', onWindowResize, false);
+
+  }
+
+  function onWindowResize() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+
+    spectacle.camera.aspect = (w - 50) / (h - 20);
+    spectacle.camera.updateProjectionMatrix();
+    spectacle.renderer.setSize(w - 50, h - 20);
+  }
+
+  function animate() {
+    // spectacle.renderer.clear();
+
+    requestAnimationFrame(animate);
+    render();
+
+  }
+
+  function render() {
+    var time = Date.now() * 0.001;
+
+    spectacle.mesh.rotation.x = time * 0.25;
+    spectacle.mesh.rotation.y = time * 0.25;
+
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+    // spectacle.renderer.clear();
+
+  }
+
+  init();
+  animate();
+</script>
+</body>
+</html>

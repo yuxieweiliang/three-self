@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+</head>
+<body>
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // antialias: 开启平滑优化
+    spectacle.renderer = new THREE.WebGLRenderer({ antialias: true });
+    spectacle.renderer.setSize(w - 20, h - 200);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#fff', 1);
+  }
+
+  // 常见场景
+  function initScene() {
+    spectacle.scene = new THREE.Scene();
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 透视相机
+    var camera = new THREE.PerspectiveCamera(45, (w - 20)/(h-200), 1, 1000);
+
+    // 设置相机的初始位置
+    camera.position.z = 600;
+    spectacle.camera = camera;
+  }
+
+  // 添加灯光
+  function initLight() {
+     // 环境光  红色环境光会让黄色物体呈现出橙色。
+    var light = new THREE.AmbientLight('#f00');
+    light.position.set(100, 100, 200);
+    spectacle.scene.add(light);
+
+    // 点光源
+    light = new THREE.PointLight(0x00FF00);
+    light.position.set(0, 0,300);
+    spectacle.scene.add(light);
+  }
+
+  // 创建物体
+  function initObject() {
+    // 六面体({上面， 下面， 高度})
+    var geometry = new THREE.PlaneGeometry(150, 150);
+
+    // 创建网格材质
+    var material = new THREE.MeshLambertMaterial({
+      vertexColors: THREE.VertexColors,
+      wireframe: false,
+      // color: '#f00'
+    });
+
+    var color1 = new THREE.Color('#00900f');
+    var color2 = new THREE.Color('#0000f0');
+    var color3 = new THREE.Color('#20f0ff');
+    var color4 = new THREE.Color('#d648d0');
+
+    console.log(geometry);
+    for(var i = 0; i < geometry.faces.length; i++) {
+      var f = geometry.faces[i];
+      f.vertexColors[0] = (i === 0) ? color1 : color4;
+      f.vertexColors[1] =  color2;
+      f.vertexColors[2] =  (i === 0) ? color3 : color1
+    }
+
+    // 创建一个网格对象，添加圆柱与材质
+    var mesh = new THREE.Mesh(geometry, material);
+
+    // 将三维模型添加到场景
+    spectacle.scene.add(mesh);
+
+    // 创建线 ({ 几何体，线条材质，连接方式 })
+    spectacle.object = mesh;
+  }
+
+  function render() {
+    // spectacle.renderer.clear();
+
+    // 移动摄像机
+    // spectacle.camera.position.x += 1;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+
+    requestAnimationFrame(render);
+  }
+
+
+  function startThree() {
+    initRenderer ();
+    initScene();
+    initCamera();
+    initObject();
+    initLight();
+
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>

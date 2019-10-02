@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/TrackballControls.js"></script>
+  <script src="./js/OBJLoader.js"></script>
+  <script src="./js/BinaryLoader.js"></script>
+  <script src="./js/Detector.js"></script>
+</head>
+<body>
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    cloneMeshes: [],
+    meshes: [],
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // antialias: 开启平滑优化
+    spectacle.renderer = new THREE.WebGLRenderer({ antialias: true });
+    spectacle.renderer.setSize(w - 20, h - 50);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#000', 1);
+  }
+
+  // 常见场景
+  function initScene() {
+    spectacle.scene = new THREE.Scene();
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 透视相机
+    var camera = new THREE.PerspectiveCamera(75, (w - 20)/(h-50), 0.01, 1e10);
+
+    // 设置相机的初始位置
+    camera.position.z = 2600;
+    camera.position.x = 1000;
+    camera.position.y = 500;
+    camera.lookAt({ x:0, y: 0, z: 0 });
+    spectacle.camera = camera;
+  }
+
+  // 添加灯光
+  function initLight() {
+     // 环境光  红色环境光会让黄色物体呈现出橙色。
+    var light = new THREE.DirectionalLight('#fff');
+    light.position.set( 200, 200, 1000 ).normalize();
+    spectacle.scene.add(light);
+  }
+
+  // 创建物体
+  function initObject() {
+
+    var jsonLoader = new THREE.JSONLoader();
+    var binaryLoader = new THREE.BinaryLoader();
+
+    // 场景 console.log(jsonLoader);
+    jsonLoader.load("/lesson_10_粒子/obj/terrain.js" , function ( geometry ) {
+      console.log('geometry: ', geometry);
+      var material = new THREE.MeshBasicMaterial({color: '#f00', wireframe: true});
+      var mesh = new THREE.Mesh(geometry, material);
+      spectacle.scene.add(mesh);
+    } );
+
+    // 车
+    binaryLoader.load('/lesson_10_粒子/obj/veyron/VeyronNoUv_bin.js', function (geometry) {
+      /*var material = new THREE.MeshBasicMaterial({color: '#0f0', wireframe: true});
+      var mesh = new THREE.Mesh(geometry, material);
+      spectacle.scene.add(mesh);*/
+
+      createMesh(geometry, spectacle.scene, 6.8, 200, -200, 100, '#0f0', false);
+    });
+
+    // 女人
+    binaryLoader.load('/lesson_10_粒子/obj/female02/Female02_bin.js', function (geometry) {
+      /*var material = new THREE.MeshBasicMaterial({color: '#ff0', wireframe: true});
+      var mesh = new THREE.Mesh(geometry, material);
+      spectacle.scene.add(mesh);*/
+      createMesh(geometry, spectacle.scene, 4, 300, 0, 100, '#ff0', true);
+    });
+
+    // 男人
+    binaryLoader.load('/lesson_10_粒子/obj/male02/Male02_bin.js', function (geometry) {
+      var material = new THREE.MeshBasicMaterial({color: '#00f', wireframe: true});
+      var mesh = new THREE.Mesh(geometry, material);
+      spectacle.scene.add(mesh);
+    });
+
+
+
+
+    var parent = new THREE.Object3D();
+
+    var grid = new THREE.Points(
+      new THREE.PlaneBufferGeometry(15000, 15000, 64, 64),
+      new THREE.PointsMaterial({
+        color: '#f00', // 颜色 红色
+        size: 10 // 大小
+      })
+    );
+
+    grid.position.y = -100;
+    grid.rotation.x = -Math.PI/2;
+    parent.add(grid);
+    spectacle.scene.add(parent);
+    spectacle.parent = parent
+
+  }
+
+  function createMesh(originalGeometry, scene, scale, x, y, z, color, dynamic) {
+    // 获取定点的位置
+    var vertices = originalGeometry.vertices;
+    var vl = vertices.length;
+
+    // 重新复制一个定点，并缓存
+    var geometry = new THREE.Geometry();
+    var vertices_tmp = [];
+    for(var i = 0, p; i < vl; i++) {
+      p = vertices[i];
+      geometry.vertices[i] = p.clone();
+      vertices_tmp[i] = [p.x, p.y, p.z, 0, 0];
+    }
+
+    // 人的位置
+    var clones = [
+      [160, 0, 140],
+      [500, 0, 0],
+      [100, 0, 500],
+      [100, 0, -500],
+      [400, 0, 200],
+      [-400, 0, 100],
+      [-500, 0, 500],
+      [0, 0, 0]
+    ];
+
+    // 模型从上到下，或从下到上 静态物体 动态物体 生成points
+    if(dynamic) {
+      // 动态
+      for(var i = 0, c, l = clones.length; i < l; i++) {
+        c = (i < l-1) ? '#666' : color;
+        mesh = new THREE.Points(geometry, new THREE.PointsMaterial({ color: c, size: 3 }));
+        mesh.scale.x = mesh.scale.y = mesh.scale.z = scale; // 缩放大小
+        mesh.position.x = x + clones[i][0];
+        mesh.position.y = y + clones[i][1];
+        mesh.position.z = z + clones[i][2];
+
+        spectacle.parent.add(mesh);
+        // 将所有对象管理起来，放在数组里面
+        spectacle.cloneMeshes.push({mesh, speed: 0.5 + Math.random()});
+
+      }
+
+    }else {
+      // 静态
+      mesh = new THREE.Points(geometry, new THREE.PointsMaterial({color, size: 3}));
+      mesh.scale.x = mesh.scale.y = mesh.scale.z = scale; // 缩放大小
+      // 位置
+      mesh.position.x = x;
+      mesh.position.y = y;
+      mesh.position.z = z;
+      spectacle.parent.add(mesh);
+    }
+
+    // 设置初始化参数
+    spectacle.meshes.push({
+      mesh: mesh, // 当前模型网格
+      vertices: geometry.vertices, // 当前点矩阵
+      vertices_tmp, // 点矩阵缓存
+      vl, // 总数
+      down: 0, // 计算下降已经到达位置的个数
+      up: 0, // 计算上升已经到达位置的个数
+      speed: 55, // 速度
+      delay: Math.floor(10 + 100*Math.random()), // 开始前的空闲时间
+      started: false,
+      start: Math.floor(50 + 50*Math.random()), // 开始前的等待时间
+      dynamic, // 是否需要动画
+    });
+
+  }
+
+  var delta;
+  var clock = new THREE.Clock();
+  function render() {
+    // spectacle.renderer.clear();
+
+    // 计算每一帧的时间
+    delta = clock.getDelta();
+
+    // 每一帧最长2秒
+    delta = (delta < 2 ? delta : 2);
+
+    // 根据动态或者静态模型， 调整每个模型的定点位置
+    for(var j = 0, meshes = spectacle.meshes, len = meshes.length, mesh; j < len; j++) {
+      data = meshes[j];
+      mesh = data.mesh;
+
+      vertices = data.vertices;
+      vertices_tmp = data.vertices_tmp;
+      vl = data.vl;
+
+      if(!data.dynamic) {
+        continue;
+      }
+
+      // 开始的时候，没有移动，设置移动，向下
+      if(data.start > 0) {
+        data.start -= 1;
+        continue;
+      } else {
+        // 开始动画
+        if(!data.started) {
+          data.direction = -1; // 向下移动
+          data.started = true;
+        }
+      }
+
+      if(j < 10) {
+        console.log('----------------------');
+        console.log("start: ", data.start);
+        console.log("started: ", data.started);
+        console.log("direction: ", data.direction);
+        console.log("delay: ", data.delay);
+        console.log("up: ", data.up);
+        console.log("down: ", data.down);
+      }
+
+      for(var i = 0; i < vl; i++) {
+        p = vertices[i];
+        vt = vertices_tmp[i];
+
+        if(i < 10) {
+          // console.log('++++++++', data.direction);
+        }
+        //
+        if(data.direction < 0) {
+          if(p.y > 0) {
+            p.x += 3.5 * (0.5 - Math.random()) * data.speed * delta;
+
+            // 向下的概率，大于向上的概率，所以向下
+            p.y += 6 * (0.25 - Math.random()) * data.speed * delta;
+            p.z += 3.5 * (0.5 - Math.random()) * data.speed * delta;
+          } else {
+            if(!vt[3]) { // 0 表示向下
+              vt[3] = 1;
+              data.down += 1;
+            }
+          }
+        }
+
+        if(data.direction > 0) {
+          d = Math.abs(p.x - vt[0] + Math.abs(p.y - vt[1]) + Math.abs(p.z - vt[2]));
+          if(d > 1) {
+            p.x += -(p.x - vt[0]) / d * data.speed * delta * (0.85 - Math.random());
+            p.y += -(p.y - vt[1]) / d * data.speed * delta * (1.85 - Math.random());
+            p.z += -(p.z - vt[2]) / d * data.speed * delta * (0.85 - Math.random());
+          } else {
+            if(!vt[4]) {
+              vt[4] = 1;
+              data.up += 1;
+            }
+          }
+        }
+      }
+
+
+
+      if(data.down === vl) {
+        if(data.delay === 0) {
+          data.direction = 1;
+          data.speed = 10;
+          data.down = 0;
+          data.delay = 100;
+
+          for(let i = 0; i < vl; i++) {
+            vertices_tmp[i][3] = 0;
+          }
+        } else {
+          data.delay -= 1;
+        }
+      }
+
+      if(data.up === vl) {
+        if(data.delay === 0) {
+          data.direction = -1;
+          data.speed = 10;
+          data.up = 0;
+          data.delay = 100;
+
+          for(let i = 0; i < vl; i++) {
+            vertices_tmp[i][4] = 0;
+          }
+        } else {
+          data.delay -= 1;
+        }
+      }
+
+      // console.log('++++++++', mesh.geometry);
+      // 重新将值 传入显卡
+      mesh.geometry.verticesNeedUpdate = true;
+
+    }
+
+    // 移动摄像机
+    spectacle.parent.rotation.y += -0.2 * delta;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+
+    requestAnimationFrame(render);
+  }
+
+
+  function startThree() {
+    initScene();
+    initCamera();
+    initLight();
+    initObject();
+    initRenderer ();
+
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>

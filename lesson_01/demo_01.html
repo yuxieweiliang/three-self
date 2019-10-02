@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+</head>
+<body>
+
+<script>
+  // 创建一个场景
+  var scene = new THREE.Scene();
+  // 创建相机
+  // 正投影相机
+  var camera = new THREE.OrthographicCamera( window.innerWidth / -8, window.innerWidth / 8, window.innerHeight / 8, window.innerHeight / -8, 50, 500 );
+  // 透视相机
+  // var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 2, 1000);
+  // 创建渲染器
+  var renderer = new THREE.WebGLRenderer();
+  // 设置渲染试图大小
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  // 加入页面
+  document.body.append(renderer.domElement);
+  // 创建一个矩形
+  var geometry = new THREE.CubeGeometry(50, 50, 50);
+  // 创建基本材质
+  var material = new THREE.MeshBasicMaterial({color: '#ff0000'});
+  // 构建三维模型
+  var cube = new THREE.Mesh(geometry, material);
+  // 向场景中添加物体
+  scene.add(cube);
+  // 设置相机的初始位置
+  camera.position.z = 100;
+
+  function render() {
+    requestAnimationFrame(render);
+
+    // 旋转三维模型
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+    renderer.render(scene, camera);
+  }
+
+  render();
+
+</script>
+</body>
+</html>

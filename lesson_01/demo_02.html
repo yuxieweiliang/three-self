@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+</head>
+<body>
+
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    spectacle.renderer = new THREE.WebGLRenderer();
+    spectacle.renderer.setSize(w, h);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#fff');
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    spectacle.camera = new THREE.PerspectiveCamera(75, w/h, 2, 1000);
+    // 设置相机的初始位置
+    spectacle.camera.position.z = 10;
+  }
+
+  // 常见场景
+  function initScene() {
+    var scene = new THREE.Scene();
+
+    // 将三维模型添加到场景
+    scene.add(spectacle.object);
+    spectacle.scene = scene;
+  }
+
+  // 创建物体
+  function initObject() {
+    // 常见一个三维模型
+    var geometry = new THREE.CubeGeometry(2, 2, 2);
+    // 创建基本材质
+    var material = new THREE.MeshBasicMaterial({color: '#ff0000'});
+    // 向三维模型绑定材质
+    spectacle.object = new THREE.Mesh(geometry, material);
+  }
+
+  function render() {
+    requestAnimationFrame(render);
+
+    // 旋转三维模型
+    spectacle.object.rotation.x += 0.01;
+    spectacle.object.rotation.y += 0.01;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+  }
+
+
+  function startThree() {
+    initRenderer ();
+    initCamera();
+    initObject();
+    initScene();
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/TrackballControls.js"></script>
+  <script src="./js/OBJLoader.js"></script>
+  <script src="./js/Detector.js"></script>
+</head>
+<body>
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // antialias: 开启平滑优化
+    spectacle.renderer = new THREE.WebGLRenderer({ antialias: true });
+    spectacle.renderer.setSize(w - 20, h - 200);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#000', 1);
+  }
+
+  // 常见场景
+  function initScene() {
+    spectacle.scene = new THREE.Scene();
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 透视相机
+    var camera = new THREE.PerspectiveCamera(45, (w - 20)/(h-200), 1, 10000);
+
+    // 设置相机的初始位置
+    camera.position.z = 2;
+    spectacle.camera = camera;
+  }
+
+  // 添加灯光
+  function initLight() {
+    spectacle.scene.add(new THREE.AmbientLight('#fff'));
+     // 环境光  红色环境光会让黄色物体呈现出橙色。
+    var light = new THREE.DirectionalLight('#fff');
+    light.position.set( 200, 200, 1000 ).normalize();
+    spectacle.scene.add(light);
+  }
+
+  // 创建物体
+  function initObject() {
+    var loader = new THREE.OBJLoader();
+    var imageLoader = new THREE.TextureLoader();
+    var texture = null; // 纹理
+
+    /*imageLoader.load('http://localhost:12542/lesson_06/images/texture.jpg', function (_texture) {
+      // _texture.wrapS = _texture.wrapT = THREE.RepeatWrapping;
+      texture = _texture;
+      /!*texture.image = THREE.ImageUtils.loadTexture( 'http://localhost:12542/lesson_06/images/texture.jpg');;
+      texture.needsUpdate = true;
+      console.log(image);*!/
+    });*/
+
+    // console.log(loader);
+    loader.load("http://localhost:12542/lesson_06/modal/Rhino.OBJ" , function ( object ) {
+      // object.computeVertexNormals();
+      console.log(object);
+      object.traverse(function (child) {
+        /*if(child instanceof THREE.Mesh) {
+          child.material.map = texture;
+        }*/
+      });
+
+      spectacle.scene.add( object );
+
+    } );
+
+
+  }
+
+  function render() {
+    // spectacle.renderer.clear();
+
+    // 移动摄像机
+    // spectacle.camera.position.x += 1;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+
+    requestAnimationFrame(render);
+  }
+
+
+  function startThree() {
+    initScene();
+    initCamera();
+    initLight();
+    initObject();
+    initRenderer ();
+
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="./js/three.js"></script>
+  <script src="./js/Stats.js"></script>
+</head>
+<body>
+<script>
+  var spectacle = {
+    renderer: null,
+    camera: null,
+    object: null,
+    stats: null,
+    screen: {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  };
+
+  function initState() {
+    var stats = new Stats();
+    stats.setMode(1); // 0: fps, 1: ms
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild( stats.domElement );
+    spectacle.stats = stats;
+  }
+
+  // 创建渲染器
+  function initRenderer () {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    spectacle.renderer = new THREE.WebGLRenderer({
+      antialias: true // 开启平滑优化
+    });
+    spectacle.renderer.setSize(w - 20, h - 200);
+    document.body.appendChild(spectacle.renderer.domElement);
+    spectacle.renderer.setClearColor('#fff', 1);
+  }
+
+  // 常见场景
+  function initScene() {
+    spectacle.scene = new THREE.Scene();
+  }
+
+  // 初始化相机
+  function initCamera() {
+    var w = spectacle.screen.width, h = spectacle.screen.height;
+    // 透视相机
+    var camera = new THREE.PerspectiveCamera(45, (w - 20)/(h-200), 1, 1000);
+
+    // 设置相机的初始位置
+    camera.position.z = 600;
+    camera.position.x = 0;
+    camera.position.y = 0;
+
+    // 快门方向
+    camera.up.x = 0;
+    camera.up.y = 1;
+    camera.up.z = 0;
+
+    // 焦点方向
+    camera.lookAt({
+      x : 0,
+      y : 0,
+      z : 0
+    });
+
+    spectacle.camera = camera;
+  }
+
+  // 添加灯光
+  function initLight() {
+     // 环境光
+    var light = new THREE.AmbientLight('#fff');
+    light.position.set(100, 100, 200);
+    spectacle.scene.add(light);
+
+    // 点光源
+    light = new THREE.PointLight(0x00FF00);
+    light.position.set(0, 0,300);
+    spectacle.scene.add(light);
+  }
+
+  // 创建物体
+  function initObject() {
+    // 六面体({上面， 下面， 高度})
+    var geometry = new THREE.CylinderGeometry(150, 150, 400);
+
+    // 创建网格材质
+    var material = new THREE.MeshLambertMaterial({ color: 0xFFFF00 });
+
+    // 创建一个网格对象，添加圆柱与材质
+    var mesh = new THREE.Mesh(geometry, material);
+
+    mesh.position = new THREE.Vector3(0, 0, 0);
+
+    // 将三维模型添加到场景
+    spectacle.scene.add(mesh);
+
+    // 创建线 ({ 几何体，线条材质，连接方式 })
+    spectacle.object = mesh;
+  }
+
+  function render() {
+    spectacle.stats.begin();
+    // spectacle.renderer.clear();
+
+     // 移动物体
+    spectacle.object.position.x += 1;
+    spectacle.renderer.render(spectacle.scene, spectacle.camera);
+
+    spectacle.stats.end();
+    requestAnimationFrame(render);
+  }
+
+
+  function startThree() {
+    initState();
+    initRenderer ();
+    initScene();
+    initCamera();
+    initObject();
+    initLight();
+
+    render();
+  }
+
+  startThree();
+</script>
+</body>
+</html>
