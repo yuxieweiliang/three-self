@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+</head>
+<body>
+
+<script type="module">
+  // 创建一个场景
+  import "../static/js/three-v108.js";
+
+  const scene = new THREE.Scene();
+
+  // 创建一个矩形
+  const geometry = new THREE.BoxGeometry(100, 100, 100);
+  // 创建基本材质
+  const material = new THREE.MeshLambertMaterial({color: '#ff0000'});
+  // 构建三维模型
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  const light = new THREE.PointLight('#fff');
+  light.position.set(300, 400, 200);
+  scene.add(light);
+
+  // 透视相机
+  const camera = new THREE.PerspectiveCamera(40, 800 / 600, 1, 1000);
+  // 设置相机的初始位置
+  camera.position.set(200, 200, 200);
+  camera.lookAt(scene.position);
+
+  // 创建渲染器
+  const renderer = new THREE.WebGLRenderer();
+
+  // 设置渲染试图大小
+  renderer.setSize(800, 600);
+  // 加入页面
+  document.body.appendChild(renderer.domElement);
+
+  // 向场景中添加物体
+  renderer.render(scene, camera);
+
+
+</script>
+</body>
+</html>

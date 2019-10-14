@@ -20,8 +20,6 @@ THREE.OBJLoader.prototype = {
 		loader.setCrossOrigin( this.crossOrigin );
 		loader.load( url, function ( text ) {
 
-			console.log(text);
-			console.log(scope.parse( text ));
 			onLoad( scope.parse( text ) );
 
 		}, onProgress, onError );
@@ -35,8 +33,6 @@ THREE.OBJLoader.prototype = {
 	},
 
 	parse: function ( text ) {
-
-		console.time( 'OBJLoader' );
 
 		var object, objects = [];
 		var geometry, material;

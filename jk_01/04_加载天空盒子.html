@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="../static/js/three-v73.js"></script>
+</head>
+<body>
+
+<script type="module">
+  // 创建一个场景
+  import "../static/js/OrbitControls.js";
+  import "../static/loaders/OBJLoader.js";
+  import "../static/loaders/MTLLoader.js";
+  import "../static/loaders/OBJMTLLoader.js";
+
+  const scene = new THREE.Scene();
+
+  // 创建一个矩形
+  const geometry = new THREE.BoxGeometry(50, 50, 50);
+  // 创建基本材质
+  const material = new THREE.MeshLambertMaterial({
+    color: '#ffffff',
+
+    // 为盒子添加材质
+    map: THREE.ImageUtils.loadTexture('../static/images/texture.jpg')
+  });
+  // 构建三维模型
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  const light = new THREE.PointLight('#fff');
+  light.position.set(300, 400, 200);
+  scene.add(light);
+
+  // 透视相机
+  const camera = new THREE.PerspectiveCamera(40, 800 / 600, 1, 2000);
+  // 设置相机的初始位置
+  camera.position.set(100, 100, 200);
+  camera.lookAt(scene.position);
+
+  // 环境光
+  const ambientLight = new THREE.AmbientLight('#33c133');
+  scene.add(ambientLight);
+
+  // 加载模型
+  const loader = new THREE.OBJLoader();
+  loader.load('../static/modal/tree.obj', function (object) {
+    object.scale.set(60, 60, 60);
+    object.position.setY(25);
+    object.position.setX(-5);
+    scene.add(object);
+
+    render();
+  });
+
+  // 加载带贴图带模型
+  const loader2 = new THREE.OBJMTLLoader();
+  loader2.load('../static/modal/obj/male02/male02.obj', '../static/modal/obj/male02/male02.mtl', function (object) {
+    object.scale.set(.08, .08, .08);
+    object.position.setY(25);
+    object.position.setX(5);
+    scene.add(object);
+
+    render();
+  });
+
+  // 加载环境盒子
+  var path = "../static/textures/pisa/";
+  var format = '.png';
+  var urls = [
+    path + 'px' + format, path + 'nx' + format,
+    path + 'py' + format, path + 'ny' + format,
+    path + 'pz' + format, path + 'nz' + format
+  ];
+
+  var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+
+
+  // Skybox
+
+  var shader = THREE.ShaderLib[ "cube" ];
+  shader.uniforms[ "tCube" ].value = textureCube;
+
+   // 贴图
+  var material2 = new THREE.ShaderMaterial( {
+
+      fragmentShader: shader.fragmentShader,
+      vertexShader: shader.vertexShader,
+      uniforms: shader.uniforms,
+      depthWrite: false,
+      side: THREE.BackSide
+
+    } ),
+
+    // 创建网格  （ 盒子， 贴图 ）
+    mesh2 = new THREE.Mesh( new THREE.BoxGeometry( 1000, 1000, 1000 ), material2 );
+  scene.add( mesh2 );
+
+
+
+  // 创建渲染器
+  const renderer = new THREE.WebGLRenderer();
+
+  // 设置渲染试图大小
+  renderer.setSize(800, 600);
+  // 加入页面
+  document.body.appendChild(renderer.domElement);
+
+  function render() {
+    // 向场景中添加物体
+    renderer.render(scene, camera);
+  }
+
+  render();
+
+  const controls = new THREE.OrbitControls(camera);
+  controls.addEventListener('change', render);
+
+
+</script>
+</body>
+</html>
