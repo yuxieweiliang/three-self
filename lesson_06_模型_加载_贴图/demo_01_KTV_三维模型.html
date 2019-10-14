@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>three</title>
-  <script src="./js/three.js"></script>
-  <script src="./js/TrackballControls.js"></script>
-  <script src="./js/VTKLoader73.js"></script>
-  <script src="./js/Detector.js"></script>
+  <script src="../static/js/three-v73.js"></script>
+  <script src="../static/js/TrackballControls.js"></script>
+  <script src="../static/loaders/VTKLoader73.js"></script>
+  <script src="../static/js/Detector.js"></script>
 </head>
 <body>
 <script>
@@ -70,7 +70,7 @@
     var loader = new THREE.VTKLoader();
 
     console.log(loader);
-    loader.load("http://localhost:12542/lesson_06/modal/bunny.vtk" , function ( geometry ) {
+    loader.load("../modal/bunny.vtk" , function ( geometry ) {
 
       // 计算法线
       geometry.computeVertexNormals();
