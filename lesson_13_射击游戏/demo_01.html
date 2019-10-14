@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="../static/js/three-v73.js"></script>
+  <script src="../static/js/Stats.js"></script>
+</head>
+<body>
+<script>
+  var container, stats;
+
+  var camera, scene, renderer;
+
+  var group;
+
+  var targetRotation = 0;
+
+  var targetRotationOnMouseDown = 0;
+
+  var mouseX = 0;
+
+  var mouseXOnMouseDown = 0;
+
+  var windowHalfX = window.innerWidth / 2;
+  var windowHalfY = window.innerHeight / 2;
+
+  init();
+  animate();
+
+  function init() {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+
+    var info = document.createElement('div');
+    info.style.position = 'absolute';
+    info.style.top = '10px';
+    info.style.width = '10%';
+    info.style.textAlign = 'center';
+    info.innerHTML = "Simple procedurally generated 3D shapes<br/>Drag to spin";
+    container.appendChild(info);
+
+    // 创建一个场景
+    scene = new THREE.Scene();
+    // 透视相机
+    camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 1000);
+    // 设置相机的初始位置
+    camera.position.set(0, 50, 500);
+    scene.add(camera);
+
+    // 创建点光源
+    var light = new THREE.PointLight('#fff', 0.8);
+    scene.add(light);
+
+    group = new THREE.Group();
+    group.position.setX(50);
+    scene.add(group);
+
+    function addShape(shape, color, x, y, z, rx, ry, rz, s) {
+      var points = shape.createPointsGeometry(5);
+
+      var line = new THREE.Line(points, new THREE.LineBasicMaterial({ color }));
+
+      line.position.set(x, y, z - 25);
+      line.rotation.set(rx, ry, rz);
+      line.scale.set(s, s, s);
+      group.add(line);
+
+    }
+
+    // Circle
+    var circleRadius = 180;
+    var circleShape = new THREE.Shape();
+
+    // 把当前点移动到某一个点
+    circleShape.moveTo(circleRadius, 0);
+    circleShape.quadraticCurveTo(0, circleRadius, -circleRadius, 0);
+
+    addShape(circleShape, '#00fff0', 0, 0, 0, 0, 0, 0, 1);
+    // 创建渲染器
+    renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor('#fff');
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    container.appendChild(stats.domElement);
+
+  }
+
+  function animate() {
+    // requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+
+  }
+</script>
+<!--<script>
+  // 设置渲染试图大小
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  // 加入页面
+  document.body.append(renderer.domElement);
+  // 创建一个矩形
+  var geometry = new THREE.CubeGeometry(50, 50, 50);
+  // 创建基本材质
+  var material = new THREE.MeshBasicMaterial({color: '#ff0000'});
+  // 构建三维模型
+  var cube = new THREE.Mesh(geometry, material);
+  // 向场景中添加物体
+  scene.add(cube);
+
+
+</script>-->
+</body>
+</html>
