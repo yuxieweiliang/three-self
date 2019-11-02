@@ -78,14 +78,17 @@
       var y = Math.random() * n - n2;
       var z = Math.random() * n - n2;
 
+      // 点 A xyz坐标
       var ax = x + Math.random() * d - d2;
       var ay = y + Math.random() * d - d2;
       var az = z + Math.random() * d - d2;
 
+      // 点 B xyz坐标
       var bx = x + Math.random() * d - d2;
       var by = y + Math.random() * d - d2;
       var bz = z + Math.random() * d - d2;
 
+      // 点 C xyz坐标
       var cx = x + Math.random() * d - d2;
       var cy = y + Math.random() * d - d2;
       var cz = z + Math.random() * d - d2;
@@ -106,11 +109,12 @@
       pB.set(bx, by, bz);
       pC.set(cx, cy, cz);
 
-      cb.subVectors(pC, pB);
-      ab.subVectors(pA, pB);
-      cb.cross(ab);
+      // 计算向量
+      cb.subVectors(pC, pB);  // 向量 C -> B
+      ab.subVectors(pA, pB);  // 向量 A -> B
+      cb.cross(ab);           // 得到 C -> A
 
-      cb.normalize();
+      cb.normalize(); // 规范化
 
       var nx = cb.x;
       var ny = cb.y;

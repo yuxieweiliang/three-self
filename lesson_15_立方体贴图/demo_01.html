@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>three</title>
+  <script src="../static/js/three-v108.js"></script>
+  <script src="../static/js/Stats.js"></script>
+  <script src="../static/js/Detector.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<script>
+  if(!Detector.webgl) Detector.addGetWebGLMessage();
+
+  var container, stats;
+
+  var camera, scene, renderer;
+
+  var uniforms, material = [], mesh;
+
+  init();
+  animate();
+
+  function init() {
+    container = document.getElementById('container');
+    document.body.appendChild(container);
+    // 创建渲染器
+    renderer = new THREE.WebGLRenderer();
+
+    // 创建一个场景
+    scene = new THREE.Scene();
+    // 透视相机
+    camera = new THREE.OrthographicCamera(-10, 10, 7.5, -7.5, 0.1, 100);
+    // 设置相机的初始位置
+    camera.position.set(25, 25, 25);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    scene.add(camera);
+
+    var texture1 = THREE.ImageUtils.loadTexture('../static/images/texture.jpg', {}, function () {
+      renderer.render(scene, camera)
+    });
+    texture1.wrapS = texture1.wrapT = THREE.RepeatWrapping;
+    texture1.repeat.set(4, 4);
+    var _material1 = new THREE.MeshBasicMaterial({
+      map: texture1,
+      overdraw: true
+    });
+    var texture2 = THREE.ImageUtils.loadTexture('../static/images/texture.jpg', {}, function () {
+      renderer.render(scene, camera)
+    });
+    var _material2 = new THREE.MeshBasicMaterial({
+      map: texture2,
+      overdraw: true
+    });
+    material.push(_material1);
+    material.push(_material1);
+    material.push(_material1);
+    material.push(_material2);
+    material.push(_material2);
+    material.push(_material2);
+
+    mesh = new THREE.Mesh(new THREE.CubeGeometry(5, 5, 5), new THREE.MeshFaceMaterial(material));
+    scene.add(mesh);
+
+    //辅助工具
+    var helper = new THREE.AxisHelper(7);
+    scene.add(helper);
+    // 创建渲染器
+    renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor('#fff');
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    render();
+  }
+
+  function render() {
+    renderer.render(scene, camera);
+  }
+</script>
+</body>
+</html>

@@ -73,6 +73,72 @@
   }
 
   startThree();
+
+
+
+  class Spectacle {
+    constructor(option) {
+      this.screen = {
+        width: option.width,
+        height: option.height
+      }
+      this.renderer = null
+      this.scene = null
+      this.cameras = {}
+      this.lights = {}
+      this.initRender()
+      this.initScene()
+    }
+
+    /**
+     * 初始化渲染器
+     */
+    initRender() {
+      const { width, height } = this
+      this.renderer = new THREE.WebGLRenderer()
+      this.renderer.setSize(width, height)
+    }
+
+    /**
+     * 初始化场景
+     */
+    initScene() {
+      const { width, height } = this
+      this.scene = new THREE.Scene()
+      this.renderer.setSize(width, height)
+    }
+
+    create(cb) {
+     cb.call(this, this.scene)
+    }
+
+    start(scene, camera) {
+
+    }
+  }
+
+  var sp = new Spectacle({
+    width: window.innerWidth,
+    height: window.innerHeight
+  })
+
+  sp.create(function (scene) {
+    console.log('light1111');
+    console.log('light', this);
+    console.log('light', scene);
+  })
+  sp.create(function (scene) {
+    console.log('light2222');
+
+  })
+
+
+
+
+
+
+
+
 </script>
 </body>
 </html>

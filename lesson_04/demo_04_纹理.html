@@ -79,9 +79,9 @@
     spectacle.scene.add(light1);*/
 
      // 环境光  红色环境光会让黄色物体呈现出橙色。
-    var pointLight = new THREE.PointLight('#fff');
+    var pointLight = new THREE.PointLight('#f0f');
     var lightHelper = new THREE.PointLightHelper(pointLight, 300);
-    pointLight.position.set(100, 100, 0);
+    pointLight.position.set(100, 100, 10);
     spectacle.scene.add(pointLight);
     spectacle.scene.add(lightHelper);
 
@@ -104,7 +104,8 @@
       function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.x = texture.repeat.y = 5;
+        texture.repeat.x = texture.repeat.y = 2;
+        // texture.repeat.offset(10, 10);
         window.texture = texture;
         // 创建网格材质
         var material = new THREE.MeshLambertMaterial({ map: texture });
@@ -112,7 +113,8 @@
         // 创建一个网格对象，添加圆柱与材质
         var mesh1 = new THREE.Mesh(geometry, material);
 
-        mesh1.position.set(100, 0, 0);
+        // 设置偏移量
+        mesh1.position.set(200, 100, 0);
 
         // 将三维模型添加到场景
         spectacle.scene.add(mesh1);
@@ -141,8 +143,8 @@
       }
     }, 1000);
 
-    console.log(spectacle.scene);
-    console.log(spectacle.camera);
+    // console.log(spectacle.scene);
+    // console.log(spectacle.camera);
     // 移动摄像机
     // spectacle.camera.position.x += 1;
     spectacle.renderer.render(spectacle.scene, spectacle.camera);

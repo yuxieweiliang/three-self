@@ -66,19 +66,30 @@
     var color1 = new THREE.Color('#f00');
     var color2 = new THREE.Color('#ffd6f1');
     var color3 = new THREE.Color('#00f');
+    var color4 = new THREE.Color('#0ff');
+    var color5 = new THREE.Color('#f0f');
+    var color6 = new THREE.Color('#ff0');
 
-    var p1 = new THREE.Vector3(120, 0, 0);
+    var p1 = new THREE.Vector3(Math.random() * 100, Math.random() * 100, 0);
     var p2 = new THREE.Vector3(60, 100, 0);
     var p3 = new THREE.Vector3(0, 0, 0);
+    var p4 = new THREE.Vector3(120, 0, 0);
+    var p5 = new THREE.Vector3(160, 200, 0);
+    var p6 = new THREE.Vector3(60, 100, 0);
 
-    geometry.vertices.push(p1, p2, p3);
+    geometry.vertices.push(p1, p2, p3, p1, p5, p2);
 
-    var face = new THREE.Face3(0, 1, 2);
-    face.vertexColors[0] = color1;
-    face.vertexColors[1] = color2;
-    face.vertexColors[2] = color3;
+    var face1 = new THREE.Face3(0, 1, 2);
+    var face2 = new THREE.Face3(3, 4, 5);
+    face1.vertexColors[0] = color1;
+    face1.vertexColors[1] = color2;
+    face1.vertexColors[2] = color3;
+    face2.vertexColors[0] = color4;
+    face2.vertexColors[1] = color5;
+    face2.vertexColors[2] = color6;
 
-    geometry.faces.push(face);
+    geometry.faces.push(face1);
+    geometry.faces.push(face2);
 
     // 创建一个网格对象，添加圆柱与材质
     var mesh = new THREE.Mesh(geometry, material);
